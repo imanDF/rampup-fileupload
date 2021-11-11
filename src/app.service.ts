@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import xlsx from 'xlsx';
 import * as fs from 'fs';
 import path from 'path';
+import moment from 'moment'
 
 @Injectable()
 export class AppService {
@@ -11,7 +12,6 @@ export class AppService {
 
   saveExcel(file): any {
     try {
-      console.log(file, 'filedetails');
       const response = {
         originalName: file.originalname,
         filename: file.filename,
@@ -34,8 +34,10 @@ export class AppService {
         name: '',
         address: '',
         gender: '',
+        mobileNumber: '',
+        dateOfBirth: '',
+        age:''
       };
-      console.log(worksheet, 'worksheet');
       for (let cell in worksheet) {
         const cellAsString = cell.toString();
         if (cellAsString !== null) {
@@ -43,23 +45,38 @@ export class AppService {
             post.name = worksheet[cell].v;
           }
           if (cellAsString[0] === 'B') {
+            post.gender = worksheet[cell].v;
+          }
+          if (cellAsString[0] === 'C') {
             post.address = worksheet[cell].v;
           }
+          if (cellAsString[0] === 'D') {
+            const dob =  worksheet[cell].v;
+            const nowDate = moment();
+            const editDob =  moment(new Date(Math.round((dob - (25567 + 1)) * 86400 * 1000))).format('YYYY-MM-DD');
+            const dobYear = moment(editDob, 'YYYY');
+            const age = nowDate.diff(dobYear, 'years');
+            post.dateOfBirth =editDob;
+            post.age = `${age}`;
+          }
         }
-        if (cellAsString[0] === 'C') {
-          post.gender = worksheet[cell].v;
+        if (cellAsString[0] === 'E') {
+          post.mobileNumber = `${worksheet[cell].v}`;
           posts.push(post);
           post = {
             name: '',
             address: '',
             gender: '',
+            mobileNumber: '',
+            dateOfBirth:'',
+            age:''
           };
         }
       }
-      console.log(posts, 'EXCEL!!!');
+      posts.splice(0, 1);
+      return posts;
     } catch (error) {
-      console.log(error, '123321');
       throw new Error(error);
     }
-  }
+  } 
 }

@@ -6,7 +6,7 @@ import { InjectQueue } from '@nestjs/bull';
 export class FileUploadService {
   constructor(@InjectQueue('fileUpload') private fileUpload: Queue) {}
 
-  async fileUploadAdd (fileName:string)
+  async fileUploadAdd (fileName:[any])
   {
      await this.fileUpload.add('studentJob',{
       fileName:fileName
